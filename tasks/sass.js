@@ -11,7 +11,8 @@ module.exports = function (grunt) {
 		var options = this.options({
 			includePaths: [],
 			outputStyle: 'nested',
-			sourceComments: 'none'
+			sourceComments: 'none',
+			basePath: null
 		});
 
 		// set the sourceMap path if the sourceComment was 'map', but set source-map was missing
@@ -29,6 +30,9 @@ module.exports = function (grunt) {
 				return next();
 			}
 
+			var tempFile = options.basePath+'/__grunt-sass-tmp.scss';
+			var renderComplete = function () {};
+
 			var renderOpts = {
 				success: function (css, map) {
 					grunt.file.write(el.dest, css);
@@ -39,10 +43,12 @@ module.exports = function (grunt) {
 						grunt.log.writeln('File ' + chalk.cyan(el.dest + '.map') + ' created.');
 					}
 
+					renderComplete();
 					next();
 				},
 				error: function (error) {
 					grunt.warn(error);
+					renderComplete();
 					next(error);
 				},
 				includePaths: options.includePaths,
@@ -51,8 +57,12 @@ module.exports = function (grunt) {
 				sourceComments: options.sourceComments
 			};
 
-			if (el.src.length > 1) {
-				renderOpts.data = '@import "' + el.src.join('";\n@import "') + '";\n';
+			if (el.src.length > 1 && options.basePath) {
+				grunt.file.write(tempFile, '@import "' + el.src.join('";\n@import "') + '";\n');
+				renderOpts.file = tempFile;
+				renderComplete = function(){
+					grunt.file.delete(tempFile);
+				}
 			} else {
 				renderOpts.file = el.src[0];
 			}
