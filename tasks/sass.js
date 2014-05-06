@@ -39,6 +39,13 @@ module.exports = function (grunt) {
 					grunt.log.writeln('File ' + chalk.cyan(el.dest) + ' created.');
 
 					if (map) {
+						// force the sourceMap to reference the dest, if file is not present
+						if (!map.file) {
+							var sourceMap = JSON.parse(map);
+							sourceMap.file = el.dest.split('/').pop();
+							map = JSON.stringify(sourceMap);
+						}
+
 						grunt.file.write(el.dest + '.map', map)
 						grunt.log.writeln('File ' + chalk.cyan(el.dest + '.map') + ' created.');
 					}
