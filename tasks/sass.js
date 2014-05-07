@@ -30,7 +30,8 @@ module.exports = function (grunt) {
 				return next();
 			}
 
-			var tempFile = options.basePath+'/__grunt-sass-tmp.scss';
+			var random = Math.floor(Math.random() * 899999) + 100000;
+			var tempFile = options.basePath+'/__grunt-sass-tmp-'+random+'.scss';
 			var renderComplete = function () {};
 
 			var renderOpts = {
